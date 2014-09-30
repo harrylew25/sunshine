@@ -1,5 +1,6 @@
 package com.example.android.sunshine;
 
+import android.content.Intent;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -11,8 +12,10 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
+import android.widget.Toast;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -69,17 +72,17 @@ public class ForecastFragment extends Fragment {
 
 
         View rootView = inflater.inflate(R.layout.fragment_main, container, false);
-        String[] forecast={};
-        FetchWeatherTask weatherTask = new FetchWeatherTask();
-        try {
-            forecast=weatherTask.execute("93201").get();
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        } catch (ExecutionException e) {
-            e.printStackTrace();
-        }
+        String [] forecastArray = {
+                "Today - Sunny - 88 /63 ",
+                "Tomorrow - Sunny - 88 /63 ",
+                "Wed - Rainy - 73/23",
+                "Thurs - Rainy - 73/23",
+                "Fri - Rainy - 73/23",
+                "Sat - Rainy - 73/23",
+                "Sun - Rainy - 73/23",
+        };
 
-        List<String> weekForecast = new ArrayList<String>(Arrays.asList(forecast));
+        List<String> weekForecast = new ArrayList<String>(Arrays.asList(forecastArray));
 
         mForecastAdapter = new ArrayAdapter<String>(
                 getActivity(),
@@ -89,7 +92,16 @@ public class ForecastFragment extends Fragment {
 
         ListView listView = (ListView) rootView.findViewById(R.id.listview_forecast);
         listView.setAdapter(mForecastAdapter);
-
+        listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> adapterView, View view, int position, long l) {
+               String forecast =mForecastAdapter.getItem(position);
+               //Toast.makeText(getActivity(),forecast,Toast.LENGTH_SHORT).show(); //small textbox
+               Intent intent = new Intent(getActivity(),DetailActivity.class)
+                       .putExtra(Intent.EXTRA_TEXT,forecast);
+                startActivity(intent);
+            }
+        });
 
         return rootView;
     }
@@ -178,9 +190,20 @@ public class ForecastFragment extends Fragment {
 
             return null;
         }
-        /* The date/time conversion code is going to be moved outside the asynctask later,
- * so for convenience we're breaking it out into its own method now.
- */
+
+        @Override
+        protected void onPostExecute(String[] result)
+        {
+            if(result!=null){
+                mForecastAdapter.clear();
+                for(String dayForecastStr: result){
+                    mForecastAdapter.add(dayForecastStr);
+                }
+            }
+        }
+         /* The date/time conversion code is going to be moved outside the asynctask later,
+          * so for convenience we're breaking it out into its own method now.
+          */
         private String getReadableDateString(long time){
             // Because the API returns a unix timestamp (measured in seconds),
             // it must be converted to milliseconds in order to be converted to valid date.
