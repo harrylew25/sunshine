@@ -1,0 +1,14 @@
+<resources>
+    <string name="title_activity_settings">Settings</string>
+
+    <!-- Strings related to units setting -->
+    <string-array name="pref_units_options">
+        <item>Metric </item>
+        <item>Imperial</item>
+    </string-array>
+
+    <string-array name="pref_units_values">
+        <item>Metric</item>
+        <item>Imperial</item>
+    </string-array>
+</resources>

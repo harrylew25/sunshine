@@ -1,5 +1,9 @@
 package com.example.android.sunshine;
 
+import android.content.Intent;
+import android.content.SharedPreferences;
+import android.net.Uri;
+import android.preference.PreferenceManager;
 import android.support.v7.app.ActionBarActivity;
 import android.support.v7.app.ActionBar;
 import android.support.v4.app.Fragment;
@@ -43,6 +47,7 @@ public class MainActivity extends ActionBarActivity {
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.main, menu);
+
         return true;
     }
 
@@ -53,13 +58,36 @@ public class MainActivity extends ActionBarActivity {
         // as you specify a parent activity in AndroidManifest.xml.
         int id = item.getItemId();
         if (id == R.id.action_settings) {
+            startActivity(new Intent(this,SettingsActivity.class));
+            return true;
+        }
+        if(id==R.id.action_map){
+            openPreferredLocationInMap();
             return true;
         }
         return super.onOptionsItemSelected(item);
     }
 
-    /**
-     * A placeholder fragment containing a simple view.
-     */
+    private void openPreferredLocationInMap(){
+
+        final String LOG_TAG = MainActivity.class.getSimpleName();
+
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
+        String location = prefs.getString(getString(R.string.pref_location_key),getString(R.string.pref_location_default));
+
+        Uri geoLocation =Uri.parse("geo:0,0?").buildUpon()
+                .appendQueryParameter("q",location)
+                .build();
+
+        Intent intent = new Intent(Intent.ACTION_VIEW);
+        intent.setData(geoLocation);
+
+        if(intent.resolveActivity(getPackageManager())!=null){
+            Log.d(LOG_TAG,"We are in "+ location);
+            startActivity(intent);
+        }else{
+            Log.d(LOG_TAG,"Couldn't call "+ location + ",no such place");
+        }
+    }
 
 }
